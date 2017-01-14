@@ -1,0 +1,6 @@
+include_directories(./src/lib/third_party/include)
+include_directories(./src/include)
+aux_source_directory(./src/lib DIR_LIB_SRCS)
+aux_source_directory(./src/lib/protocols DIR_LIB_SRCS)
+aux_source_directory(./src/lib/third_party/src DIR_LIB_SRCS)
+add_library(ndpi ${DIR_LIB_SRCS})

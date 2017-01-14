@@ -1,0 +1,46 @@
+cmake_minimum_required(VERSION 2.8)
+project(ndpi_demo)
+set(EXE_NAME ndpi-demo)
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/deps/cmake)
+set (CMAKE_C_FLAGS "--std=gnu99 ${CMAKE_C_FLAGS}")
+aux_source_directory(./src SOURCE_FILES)
+SET(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
+
+#数学库
+list(APPEND DEPS_LIB m)
+
+include_directories(deps/zlog/src)
+add_subdirectory(deps/zlog)
+list(APPEND DEPS_LIB zlog)
+
+include_directories(deps/nDPI-1.6/src/include)
+add_subdirectory(deps/nDPI-1.6)
+list(APPEND DEPS_LIB ndpi)
+
+add_executable(${EXE_NAME} ${SOURCE_FILES})
+
+#多线程支持
+find_package(Threads REQUIRED)
+if (THREADS_HAVE_PTHREAD_ARG)
+    target_compile_options(PUBLIC ${EXE_NAME} "-pthread")
+endif ()
+if (CMAKE_THREAD_LIBS_INIT)
+    list(APPEND DEPS_LIB ${CMAKE_THREAD_LIBS_INIT})
+endif ()
+find_package(FindLibConfig)
+if (CONFIG_FOUND)
+    include_directories(${CONFIG_INCLUDE_DIR})
+    list(APPEND DEPS_LIB ${CONFIG_LIBRARY})
+else ()
+    message(FATAL_ERROR "libconfig not found!")
+endif ()
+find_package(FindPCAP)
+if (PCAP_FOUND)
+    include_directories(${PCAP_INCLUDE_DIR})
+    list(APPEND DEPS_LIB ${PCAP_LIBRARY})
+else ()
+    message(FATAL_ERROR "libpcap not found!")
+endif ()
+target_link_libraries(${EXE_NAME} ${DEPS_LIB})
+
